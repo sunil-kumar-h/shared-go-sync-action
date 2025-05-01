@@ -18,11 +18,8 @@ inputs:
     description: "Path to a file listing dependencies to ignore."
     required: false
     default: ".depignore"
-  folder-path:
-    description: "Path to the folder containing the go.mod file."
-    required: true
-    default: "."
 
+  
 runs:
   using: "docker"
   image: "Dockerfile"
@@ -32,4 +29,3 @@ runs:
     - --repo-owner=${{ inputs.repo-owner }}
     - --repo-name=${{ inputs.repo-name }}
     - --ignore-file=${{ inputs.ignore-file }}
-    - --folder-path=${{ inputs.folder-path }}

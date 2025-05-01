@@ -1,8 +1,15 @@
 FROM golang:1.21-alpine
 
 WORKDIR /app
+
+# Install git (needed for go mod download)
+RUN apk add --no-cache git
+
+COPY go.mod go.sum ./
+RUN go mod download
+
 COPY . .
 
-RUN go build -o /usr/local/bin/shared-go-sync shared-go-sync.go
+RUN go build -o shared-go-sync shared-go-sync.go
 
-ENTRYPOINT ["shared-go-sync"]
+ENTRYPOINT ["/app/shared-go-sync"]

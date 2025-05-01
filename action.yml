@@ -21,9 +21,8 @@ inputs:
 
 runs:
   using: "docker"
-  image: "docker://golang:1.21"
+  image: "Dockerfile"
   args:
-    - go run shared-go-sync.go
     - --shared-mod-url=${{ inputs.shared-mod-url }}
     - --github-token=${{ inputs.github-token }}
     - --repo-owner=${{ inputs.repo-owner }}

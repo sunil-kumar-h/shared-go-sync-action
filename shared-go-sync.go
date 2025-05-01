@@ -10,6 +10,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
+	"strings"
 	"time"
 )
 
@@ -48,9 +50,31 @@ func extractDependencies(modFile *modfile.File) map[string]string {
 	return deps
 }
 
-func printDifferences(sharedDeps, projectDeps map[string]string) {
+func loadIgnoredDependencies(path string) map[string]bool {
+	ignored := make(map[string]bool)
+	if path == "" {
+		return ignored
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		log.Printf("Warning: could not read ignore file: %v", err)
+		return ignored
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if line != "" && !strings.HasPrefix(line, "#") {
+			ignored[line] = true
+		}
+	}
+	return ignored
+}
+
+func printDifferences(sharedDeps, projectDeps map[string]string, ignored map[string]bool) {
 	fmt.Println("Differences in dependencies:")
 	for dep, version := range projectDeps {
+		if ignored[dep] {
+			continue
+		}
 		if sharedVersion, ok := sharedDeps[dep]; ok {
 			if version != sharedVersion {
 				fmt.Printf("Dependency: %s\n  Project Version: %s\n  Shared Version: %s\n", dep, version, sharedVersion)
@@ -139,6 +163,7 @@ func main() {
 	githubToken := flag.String("github-token", "", "GitHub token for authentication.")
 	repoOwner := flag.String("repo-owner", "", "GitHub repository owner.")
 	repoName := flag.String("repo-name", "", "GitHub repository name.")
+	ignoreFile := flag.String("ignore-file", "", "Path to a file listing dependencies to ignore.")
 	flag.Parse()
 
 	// Check required flags
@@ -177,9 +202,10 @@ func main() {
 
 	// Extract dependencies from the project's go.mod file
 	projectDeps := extractDependencies(projectModFile)
+	ignoredDeps := loadIgnoredDependencies(*ignoreFile)
 
 	// Print the differences
-	printDifferences(sharedDeps, projectDeps)
+	printDifferences(sharedDeps, projectDeps, ignoredDeps)
 
 	// Build a map of differences
 	diff := make(map[string]string)

@@ -1,0 +1,31 @@
+name: "Shared Go Dependency Sync"
+description: "Sync Go dependencies in your repo to match versions in the shared-go-deps repository."
+
+inputs:
+  shared-mod-url:
+    description: "URL to the shared-go-deps go.mod file."
+    required: true
+  github-token:
+    description: "GitHub token to create pull requests."
+    required: true
+  repo-owner:
+    description: "GitHub repository owner."
+    required: true
+  repo-name:
+    description: "GitHub repository name."
+    required: true
+  ignore-file:
+    description: "Path to a file listing dependencies to ignore."
+    required: false
+    default: ".depignore"
+
+runs:
+  using: "docker"
+  image: "docker://golang:1.21"
+  args:
+    - go run shared-go-sync.go
+    - --shared-mod-url=${{ inputs.shared-mod-url }}
+    - --github-token=${{ inputs.github-token }}
+    - --repo-owner=${{ inputs.repo-owner }}
+    - --repo-name=${{ inputs.repo-name }}
+    - --ignore-file=${{ inputs.ignore-file }}

@@ -1,6 +1,6 @@
 module github.com/sunil-kumar-h/shared-go-sync-action
 
-go 1.24.1
+go 1.21.1
 
 require (
 	github.com/google/go-github/v50 v50.1.0

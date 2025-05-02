@@ -83,7 +83,7 @@ func printDifferences(sharedDeps, projectDeps map[string]string, ignored map[str
 	}
 }
 
-func createPR(client *github.Client, ctx context.Context, owner, repo string, updates map[string]string) error {
+func createPR(client *github.Client, ctx context.Context, owner, repo string, updates map[string]string, goModPath string) error {
 	baseBranch := "main"
 	branchName := "update-deps-" + fmt.Sprint(time.Now().Unix())
 
@@ -106,7 +106,7 @@ func createPR(client *github.Client, ctx context.Context, owner, repo string, up
 	}
 
 	// 3. Get latest go.mod content from the repo
-	fileContent, _, _, err := client.Repositories.GetContents(ctx, owner, repo, "go.mod", &github.RepositoryContentGetOptions{Ref: baseBranch})
+	fileContent, _, _, err := client.Repositories.GetContents(ctx, owner, repo, goModPath, &github.RepositoryContentGetOptions{Ref: baseBranch})
 	if err != nil {
 		return fmt.Errorf("failed to get go.mod content: %v", err)
 	}
@@ -115,7 +115,7 @@ func createPR(client *github.Client, ctx context.Context, owner, repo string, up
 		return fmt.Errorf("failed to decode go.mod content: %v", err)
 	}
 
-	modFile, err := modfile.Parse("go.mod", []byte(content), nil)
+	modFile, err := modfile.Parse(goModPath, []byte(content), nil)
 	if err != nil {
 		return fmt.Errorf("failed to parse go.mod: %v", err)
 	}
@@ -137,7 +137,7 @@ func createPR(client *github.Client, ctx context.Context, owner, repo string, up
 		SHA:     fileContent.SHA,
 		Branch:  github.String(branchName),
 	}
-	_, _, err = client.Repositories.UpdateFile(ctx, owner, repo, "go.mod", options)
+	_, _, err = client.Repositories.UpdateFile(ctx, owner, repo, goModPath, options)
 	if err != nil {
 		return fmt.Errorf("failed to commit updated go.mod: %v", err)
 	}
@@ -224,7 +224,7 @@ func main() {
 
 	if len(diff) > 0 {
 		ctx := context.Background()
-		err := createPR(client, ctx, *repoOwner, *repoName, diff)
+		err := createPR(client, ctx, *repoOwner, *repoName, diff, goModPath)
 		if err != nil {
 			log.Fatalf("Failed to create PR: %v", err)
 		} else {

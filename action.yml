@@ -18,6 +18,10 @@ inputs:
     description: "Path to a file listing dependencies to ignore."
     required: false
     default: ".depignore"
+  folder-path:
+    description: "Path to a folder listing go mod file"
+    required: false
+    default: ""
 
 
 runs:

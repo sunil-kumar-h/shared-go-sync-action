@@ -164,7 +164,14 @@ func main() {
 	repoOwner := flag.String("repo-owner", "", "GitHub repository owner.")
 	repoName := flag.String("repo-name", "", "GitHub repository name.")
 	ignoreFile := flag.String("ignore-file", "", "Path to a file listing dependencies to ignore.")
+	folderPath := flag.String("folder-path", "", "Path to the folder containing the go.mod file.")
 	flag.Parse()
+
+	// Decide the path to go.mod
+	goModPath := "go.mod"
+	if *folderPath != "" {
+		goModPath = *folderPath + "/go.mod"
+	}
 
 	// Check required flags
 	if *sharedModURL == "" || *githubToken == "" || *repoOwner == "" || *repoName == "" {
@@ -183,7 +190,7 @@ func main() {
 	// Fetch the go.mod from the project's GitHub repository
 	client := github.NewClient(oauth2.NewClient(oauth2.NoContext, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: *githubToken})))
 	// GitHub API to fetch the go.mod file from the repository
-	fileContent, _, _, err := client.Repositories.GetContents(oauth2.NoContext, *repoOwner, *repoName, "go.mod", nil)
+	fileContent, _, _, err := client.Repositories.GetContents(oauth2.NoContext, *repoOwner, *repoName, goModPath, nil)
 	if err != nil {
 		log.Fatalf("Error fetching go.mod from repository: %v", err)
 	}

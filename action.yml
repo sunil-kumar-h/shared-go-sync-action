@@ -19,7 +19,7 @@ inputs:
     required: false
     default: ".depignore"
 
-  
+
 runs:
   using: "docker"
   image: "Dockerfile"
@@ -29,3 +29,4 @@ runs:
     - --repo-owner=${{ inputs.repo-owner }}
     - --repo-name=${{ inputs.repo-name }}
     - --ignore-file=${{ inputs.ignore-file }}
+    - --folder-path=${{ inputs.folder-path }}

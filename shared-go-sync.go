@@ -52,10 +52,13 @@ func extractDependencies(modFile *modfile.File) map[string]string {
 
 func loadIgnoredDependencies(path string) map[string]bool {
 	ignored := make(map[string]bool)
+	log.Print("Path to ignore file: ")
+	log.Print(path)
 	if path == "" {
 		return ignored
 	}
 	data, err := os.ReadFile(path)
+
 	if err != nil {
 		log.Printf("Warning: could not read ignore file: %v", err)
 		return ignored

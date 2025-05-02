@@ -213,9 +213,6 @@ func main() {
 	// Extract dependencies from the project's go.mod file
 	projectDeps := extractDependencies(projectModFile)
 	ignorePath := *ignoreFile
-	if ignorePath == "" {
-		ignorePath = ".depignore"
-	}
 	ignoredDeps := loadIgnoredDependencies(ignorePath)
 
 	// Print the differences
